@@ -3,7 +3,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "visitormanagement";
+$dbname = "vms";
 
 
 $conn = mysqli_connect($servername, $username, $password, $dbname);

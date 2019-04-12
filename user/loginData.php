@@ -23,6 +23,7 @@ echo $_POST["inputPassword"];
 	       {
 			$row=mysqli_fetch_array($check_username);
 			$_SESSION['id']=$row['id'];
+			$_SESSION["user"] = $_POST["userName"];
 			header('location:visitor.php'); 
 			
 		   }

@@ -29,18 +29,16 @@ $(document).ready(function() {
     $( "#createVisitorBtn" ).click(function() {
         
 
-            // myObj['name'] = $('#visitorname').val();
-            // myObj['fromwhichcompany'] = $('#fromwhichcompany').val();
-            // myObj['address'] = $('#address').val();
-            // myObj['mobile'] = $('#mobile').val();
-            // myObj['email'] = $('#email').val();
-            // myObj['whomtomeet'] = $('#whomtomeet').val();
-            // myObj['appointmentrequired'] = $('#appointmentrequired').val();
-            // myObj['govtid'] = $('#govtid').val();
             
+            var imagedata;
+            imagedata = document.getElementById("mydata").value;
+            if (imagedata == "") {
+                alert("please take a proper photo!");
+            return false;
+            }
             if ($('#visitorcreateForm').valid() == false) return false;
             if ($('#mobile').val() != null) {
-                alert("call ajax"+$('#mobile').val());
+                //alert("call ajax"+$('#mobile').val());
                 var mob= $('#mobile').val();
                 $.ajax({
                     url:"../user/sendOTP.php", //the page containing php script
@@ -102,7 +100,7 @@ $(document).ready(function() {
             var whomtomeet= $('#whomtomeet').val();
             var appointmentrequired= $('#appointmentrequired').val();
             var govtid= $('#govtid').val();
-            var image= $('.image-tag').val();
+            var image= $('#mydata').val();
 
             $.ajax({
                 url:"../user/visitorDataCreate.php", //the page containing php script
@@ -110,7 +108,8 @@ $(document).ready(function() {
                 data:({visitorname :visitorname,fromwhichcompany:fromwhichcompany,address:address,mobile:mobile,email:email,whomtomeet:whomtomeet,appointmentrequired:appointmentrequired,govtid:govtid,image:image}) ,  
                 success: function(res) { 
                 console.log(res);
-                    $('#printqrid').show();   
+                    $("#visitorcreateForm")[0].reset();
+                      
                 }
                 
             });

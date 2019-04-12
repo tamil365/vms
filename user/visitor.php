@@ -8,27 +8,29 @@
     include('../common/SqlConnection.php');
     include('../user/phpqrcode/qrlib.php'); 
     $id=$_SESSION['id'];
-    $check_username=mysqli_query($conn, "SELECT * FROM user WHERE id='$id'");
-    $numrows=mysqli_num_rows($check_username);
-    $row = mysqli_fetch_array($check_username);
+    // $check_username=mysqli_query($conn, "SELECT * FROM user WHERE id='$id'");
+    // $numrows=mysqli_num_rows($check_username);
+    // $row = mysqli_fetch_array($check_username);
 
     if (isset($_SESSION['receiptid'])) {    
         $receiptid = $_SESSION['receiptid'];
-        echo $receiptid;
+        
         $sql = "SELECT * FROM visitor WHERE receiptid = $receiptid";
         $re = mysqli_query($conn, $sql);
         $result = mysqli_fetch_array($re, MYSQLI_ASSOC);
     }
 
     if(isset($_SESSION['receiptid'])) {
-        echo "call qr code";
+        echo '<script> $("#printqrid").prop(hidden,false) </script>';
+        
     $receiptid = $_SESSION['receiptid'];
     
-    $visitorinfo=mysqli_query($conn, "SELECT * FROM visitor WHERE id='$receiptid'");
+    $visitorinfo=mysqli_query($conn, "SELECT * FROM visitor WHERE receiptid='$receiptid'");
     
     $visitorData = mysqli_fetch_assoc($visitorinfo);
    
     $visitorName=$visitorData["name"];
+    
     $visitorAddress=$visitorData["address"];
     $visitorMobile=$visitorData["mobile"];
     $visitorEmail=$visitorData["email"];
@@ -41,10 +43,11 @@
     $tempDir = 'qrcodeimages/';   
     if (!file_exists($tempDir))
         mkdir($tempDir);
-    $codeContents=$visitorName;
-    $codeContents.=$visitorAddress;
-    $codeContents.=$visitorMobile;
-    $codeContents.=$visitorReceiptId;
+    $codeContents="Name :".$visitorName."\n";
+    $codeContents.="Address : ".$visitorAddress."\n";
+    $codeContents.="Contact : ".$visitorMobile."\n";
+    $codeContents.="Meet To : ".$visitorWhomtoMeet."\n";
+    $codeContents.="Receipt Id : ".$visitorReceiptId."\n";
     $fileName     = 'qr_'.md5($codeContents).'.png';
  
     $pngAbsoluteFilePath = $tempDir.$fileName;
@@ -57,10 +60,10 @@
        echo QRcode::png($codeContents, $pngAbsoluteFilePath);
     }
     else {
-       echo "Not working!";
+       //echo "Not working!";
     }
  
-    echo '<img src="'.$urlRelativeFilePath.'" />';
+    //echo '<img src="'.$urlRelativeFilePath.'" />';
 }
       
  ?>
@@ -76,7 +79,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>Visitor Management - Login</title>
+  <title>Visitor Management - Visitor</title>
 
   <!-- Custom fonts for this template-->
   <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -112,67 +115,97 @@
                     <li class="breadcrumb-item active">Overview</li>
                 </ol>
                 <div class="card-body">
-                    <form class="form-horizontal" id="visitorcreateForm">
-                        <div class="form-row">
-                            <div class="col-md-4 mb-4">
-                            <label  for="visitorname">Visitor Name</label>
-                                <input type="text" class="form-control"  style="text-transform: capitalize;" autocomplete="off" placeholder="Enter Visitor name" name="visitorname" id="visitorname">
-                                
-                            </div>
-                            <div class="col-md-4 mb-4">
-                                <label  for="fromwhichcompany">Company</label> 
-                                <input type="text" class="form-control" autocomplete="off" placeholder="Enter Company" name="fromwhichcompany" id="fromwhichcompany">
-                            </div>
-                            <div class="col-md-4 mb-4">
-                                <label for="address">address</label>
-                                <input type="text" class="form-control" autocomplete="off" placeholder="Enter Address" name="address" id="address">  
-                            </div>
-                        </div>  
-                        <div class="form-row">
-                            <div class="col-md-4 mb-4">
-                                <label  for="mobile">mobile</label>
-                                <input type="text" autocomplete="off" class="form-control" placeholder="Enter Mobile" maxlength="10" name="mobile" id="mobile">
-                            </div>
-                            <div class="col-md-4 mb-4">
-                                <label  for="email">email</label>
-                                <input type="email" class="form-control" autocomplete="off" autocomplete="off" placeholder="Enter email" name="email" id="email">
-                            </div>
-                            <div class="col-md-4 mb-4">
-                                <label for="whomtomeet">Whom To Meet</label>
-                                <select class="selectpicker form-control" name="whomtomeet" id="whomtomeet">
-                                    <option value= "" selected>Select whom to meet</option>
-                                    <option value= "James">James -Yes</option>
-                                    <option value= "Hari">Hari -No</option>
-                                </select>                        
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="col-md-4 mb-4">
-                                <label  for="appointment">appointment</label>
-                                <select class="selectpicker form-control" name="appointmentrequired" id="appointmentrequired">
-                                    <option value= "" selected>Select Appointment</option>
-                                    <option value= "YES">YES</option>
-                                    <option value= "No">NO</option>
-                                </select>
-                            </div>
+                    <form id="visitorcreateForm">
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <div class="row">
+                                     <div class="col-sm-6">
+                                        <label  for="visitorname">Visitor Name</label>
+                                        <input type="text" class="form-control"  style="text-transform: capitalize;" autocomplete="off" placeholder="Enter Visitor name" name="visitorname" id="visitorname">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label  for="fromwhichcompany">Company</label> 
+                                        <input type="text" class="form-control" autocomplete="off" placeholder="Enter Company" name="fromwhichcompany" id="fromwhichcompany">
+                                    </div>
+                                </div>  
 
-                            <div class="col-md-4 mb-4">
-                                <label  for="govtidproof">Govt id proof</label>
-                                <input type="text" class="form-control" autocomplete="off"  placeholder="Enter govt id " name="govtid" id="govtid">
-                            </div>
-                            <div class="col-md-4 mb-4">
-                                <button type="button" style="margin-top: 30px;" class="btn btn-primary" data-toggle="modal" data-target="#snopshotModal"><i class="fa fa-camera" aria-hidden="true"></i> Take Picture </button>   
-                                <input type="hidden" name="image" class="image-tag">
-                            </div>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <label for="address">Address</label>
+                                        <input type="text" class="form-control" autocomplete="off" placeholder="Enter Address" name="address" id="address">  
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label  for="mobile">Mobile</label>
+                                        <input type="text" autocomplete="off" class="form-control" placeholder="Enter Mobile" maxlength="10" name="mobile" id="mobile">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                                        
+                                    <div class="col-sm-6">
+                                        <label  for="email">Email</label>
+                                        <input type="email" class="form-control" autocomplete="off" autocomplete="off" placeholder="Enter email" name="email" id="email">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label for="whomtomeet">Whom To Meet</label>
+                                        <select class="selectpicker form-control" name="whomtomeet" id="whomtomeet">
+                                            <option value= "" selected>Select whom to meet</option>
+                                            <option value= "James">James -Yes</option>
+                                            <option value= "Hari">Hari -No</option>
+                                        </select>                        
+                                    </div>
+
+                                </div>
+                                <div class="row">    
+                                    <div class="col-sm-6">
+                                        <label  for="appointment">Appointment</label>
+                                        <select class="selectpicker form-control" name="appointmentrequired" id="appointmentrequired">
+                                            <option value= "" selected>Select Appointment</option>
+                                            <option value= "YES">YES</option>
+                                            <option value= "No">NO</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <label  for="govtidproof">Govt id proof</label>
+                                        <input type="text" class="form-control" autocomplete="off"  placeholder="Enter govt id " name="govtid" id="govtid">
+                                    </div>
+                                </div> <!-- end of row --> 
+                            </div><!-- end col-sm-8 -->
                             
-                        </div> 
-                        
-                        <div>
+
+                            <div class="col-sm-4" style="padding-top:30px;padding-left:30px">
+                                <div style="width: 350px; height: 250px;" id="my_camera">No Camera Detected !</div>
+                                    <div  id="pre_take_buttons" style="padding-top:20px;text-align:center;">
+                                        <button autocomplete="off" class="btn btn-primary" onclick="preview_snapshot()" type="button"><i class="fa fa-camera" aria-hidden="true"></i> Take Snapshot</button>
+                                    </div>
+                                    <div id="post_take_buttons" style="display: none;padding-top:20px;text-align:center;">
+                                        <button autocomplete="off" class="btn btn-primary"  onclick="cancel_preview()" type="button"><i class="fas fa-less-than"></i> Take Another</button>
+                                        <button autocomplete="off" class="btn btn-primary"  onclick="save_photo()" style="font-weight:bold;" type="button"> Save Photo <i class="fas fa-greater-than"></i></button>
+                                    </div>
+                            
+                                </div>                              
+                            </div> 
+
+                           
                             <div style="margin-top: 15px;">   
-                                <button type="button" class="btn btn-primary" id="createVisitorBtn" name="createvisitor">Create</button>
+                                <button type="button" class="btn btn-success" id="createVisitorBtn" name="createvisitor">Submit</button>
+                                <input autocomplete="off" id="mydata" type="hidden" name="mydata">
                             </div>
-                        </div>
-                        <br>
+                       
+                        </div>                       
+                        <!-- <script type="text/javascript">
+                            function emptys() {
+                                var x;
+                                x = document.getElementById("mydata").value;
+                                if (x == "") {
+                                alert("please take a proper phto!");
+                                return false;
+                                };
+                            }
+                            </script>	 -->
+                        </form> 
+
                         <div class="form-row" id="printqrid">
                             <div class="col-md-2 mb-2">
                                 <button type="button" class="btn btn-danger"data-toggle="modal" data-target="#printModal" ><i class="fa fa-print"></i> Print </button>
@@ -180,8 +213,11 @@
                             <div class="col-md-2 mb-2">
                                 <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#qrModal"><i class="fa fa-qrcode"></i> QRCode</button>
                             </div>
-                        </div>    	
-                    </form>                  
+                        </div> 
+
+                        
+                    </div>   	
+                                    
                 </div>
             </div>
         </div>
@@ -285,7 +321,7 @@
             <!-- Modal body -->
             <div class="modal-body">
                 <div class="container">
-                    <div  class="row" >
+                    <div id="printDiv" class="row">
 
                         <div class="col-sm-4" > 
                             <img style="width: 200px; height: 224px;" src="<?php echo $result['photo']?>"> 
@@ -320,7 +356,7 @@
                     <br>
                     <br> -->
                     <div style="text-align:center;"> 
-                        <button type="button" id="button" class="hide-from-printer" onclick="window.print()" value="Print Badge">Print</button> 
+                        <button type="button" id="button" class="hide-from-printer" onclick="printPage(printDiv)">Print</button> 
                         <!-- <a type="button" id="button" class="hide-from-printer" href="front.php">Back </a> -->
                     </div>
                     <!-- <a type="button" id="button" class="hide-from-printer" href="front.php"> </a> -->
@@ -387,23 +423,65 @@
 
 <!-- Configure a few settings and attach camera -->
  <script language="JavaScript">
+
+
+
     Webcam.set({
-        width: 300,
-        height: 200,
+        width: 350,
+        height: 250,
         image_format: 'jpeg',
         jpeg_quality: 90
     });
   
     Webcam.attach( '#my_camera' );
   
-    function take_snapshot() {
-        Webcam.snap( function(data_uri) {
-            $(".image-tag").val(data_uri);
-            document.getElementById('results').innerHTML = '<img src="'+data_uri+'"/>';
-        } );
+    // function take_snapshot() {
+    //     Webcam.snap( function(data_uri) {
+    //         $(".image-tag").val(data_uri);
+    //         document.getElementById('results').innerHTML = '<img src="'+data_uri+'"/>';
+    //     } );
+    // }
+
+    function printPage(){
+        var divToPrint = document.getElementById('printDiv');
+       var popupWin = window.open('', '_blank', 'width=500,height=500');
+       popupWin.document.open();
+       popupWin.document.write('<html><body onload="window.print()">' + divToPrint.innerHTML + '</html>');
+       popupWin.document.close();
     }
 </script>
 
+<script language="JavaScript">
+   function preview_snapshot() {
+// freeze camera so user can preview pic
+	Webcam.freeze();
+// swap button sets
+	document.getElementById('pre_take_buttons').style.display = 'none';
+	document.getElementById('post_take_buttons').style.display = '';
+}
+	function cancel_preview() {
+// cancel preview freeze and return to live camera feed
+	  Webcam.unfreeze();
+// swap buttons back
+	  document.getElementById('pre_take_buttons').style.display = '';
+	  document.getElementById('post_take_buttons').style.display = 'none';
+  }
+	function save_photo() {
+// actually snap photo (from preview freeze) and display it
+	  Webcam.snap( function(data_uri) {
+// display results in page
+	  document.getElementById('my_camera').innerHTML = 
+		  '<img src="'+data_uri+'"/>';
+	  var raw_image_data = data_uri.replace(/^data\:image\/\w+\;base64\,/, '');
+	  document.getElementById('mydata').value = raw_image_data;
+	  document.getElementById('pre_take_buttons').style.display = '';
+	  document.getElementById('post_take_buttons').style.display = 'none';
+ });
+}
+</script>
+<?php
+include('../common/footerForAll.php');
+?>
 </body>
 
 </html>
